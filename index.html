@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Bubble Up</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(180deg, #0f2027, #203a43, #2c5364);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  #stage {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .bubble {
+    position: absolute;
+    bottom: -60px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(120,200,255,0.35) 60%, rgba(120,200,255,0.1));
+    box-shadow: 0 0 10px rgba(255,255,255,0.4) inset;
+    animation-name: rise, sway;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: 1, infinite;
+    animation-direction: normal, alternate;
+  }
+
+  @keyframes rise {
+    0% { transform: translateY(0); opacity: 0.9; }
+    85% { opacity: 0.8; }
+    100% { transform: translateY(-110vh); opacity: 0; }
+  }
+
+  @keyframes sway {
+    from { margin-left: -20px; }
+    to { margin-left: 20px; }
+  }
+
+  #controls {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 60px;
+    text-align: center;
+  }
+
+  #startBtn {
+    padding: 16px 40px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #063a4d;
+    background: linear-gradient(180deg, #ffffff, #cdeeff);
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.3);
+    transition: transform 0.08s ease;
+  }
+
+  #startBtn:active {
+    transform: scale(0.95);
+  }
+
+  #counter {
+    color: #cdeeff;
+    margin-top: 14px;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+  }
+</style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="stage"></div>
+
+<div id="controls">
+  <button id="startBtn">Start</button>
+  <div id="counter">Bubbles sent up: 0</div>
+</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const startBtn = document.getElementById('startBtn');
+  const counterEl = document.getElementById('counter');
+  let count = 0;
+
+  function randomBetween(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  function popBubble(bubble) {
+    bubble.remove();
+  }
+
+  function createBubble() {
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+
+    const size = randomBetween(18, 60);
+    const startX = randomBetween(5, 95); // vw
+    const riseDuration = randomBetween(3.5, 6.5);
+    const swayDuration = randomBetween(1.5, 3);
+
+    bubble.style.width = size + 'px';
+    bubble.style.height = size + 'px';
+    bubble.style.left = startX + 'vw';
+    bubble.style.animationDuration = riseDuration + 's, ' + swayDuration + 's';
+
+    bubble.addEventListener('animationend', (e) => {
+      if (e.animationName === 'rise') {
+        popBubble(bubble);
+      }
+    });
+
+    stage.appendChild(bubble);
+  }
+
+  function burst() {
+    // main bubble plus a few smaller companions for a nice "pop" feel
+    const numBubbles = Math.floor(randomBetween(3, 6));
+    for (let i = 0; i < numBubbles; i++) {
+      setTimeout(createBubble, i * 80);
+    }
+    count++;
+    counterEl.textContent = 'Bubbles sent up: ' + count;
+  }
+
+  startBtn.addEventListener('click', burst);
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>
